@@ -1,0 +1,17 @@
+# Secrets — NEVER commit these
+.env
+credentials/
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Excel files (too large, not needed in repo)
+*.xlsx
+
+# macOS
+.DS_Store

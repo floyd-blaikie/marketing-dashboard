@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Google Ads API Design Document — Pivotree Marketing Data Pipeline</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 11pt; color: #222; max-width: 720px; margin: 40px auto; line-height: 1.6; }
+  h1 { font-size: 16pt; border-bottom: 2px solid #333; padding-bottom: 6px; }
+  h2 { font-size: 13pt; margin-top: 28px; }
+  h3 { font-size: 11pt; margin-top: 18px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th { background: #f0f0f0; text-align: left; padding: 6px 10px; border: 1px solid #ccc; }
+  td { padding: 6px 10px; border: 1px solid #ccc; vertical-align: top; }
+  .meta { color: #555; font-size: 10pt; margin-bottom: 24px; }
+  ul { margin: 6px 0; padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  .section { margin-bottom: 24px; }
+</style>
+</head>
+<body>
+
+<h1>Google Ads API — Application Design Document</h1>
+<div class="meta">
+  <strong>Company:</strong> Pivotree Inc. &nbsp;|&nbsp;
+  <strong>Contact:</strong> floyd.blaikie@pivotree.com &nbsp;|&nbsp;
+  <strong>Date:</strong> June 2026
+</div>
+
+<div class="section">
+<h2>1. Application Overview</h2>
+<p>
+  This document describes the <strong>Pivotree Marketing Data Pipeline</strong>, an internal Python
+  script that consolidates marketing performance data from multiple platforms into a single private
+  Google Sheet for use by Pivotree's marketing and sales leadership team.
+</p>
+<p>
+  The tool is not a commercial product and will not be distributed to third parties. It is used
+  exclusively by Pivotree employees to monitor marketing KPIs across platforms including
+  Google Ads, HubSpot, LinkedIn Ads, and Google Analytics 4.
+</p>
+</div>
+
+<div class="section">
+<h2>2. Google Ads API Usage</h2>
+
+<h3>Purpose</h3>
+<p>
+  The Google Ads API is used solely to retrieve aggregate campaign performance metrics for
+  internal reporting. No data is modified, no campaigns are created or edited, and no
+  bid adjustments or automated actions are made through the API.
+</p>
+
+<h3>Data Accessed</h3>
+<table>
+  <tr><th>Resource</th><th>Fields Retrieved</th><th>Reason</th></tr>
+  <tr>
+    <td>campaigns</td>
+    <td>name, status, impressions, clicks, cost, conversions, conversion_value</td>
+    <td>Weekly campaign performance summary</td>
+  </tr>
+  <tr>
+    <td>ad_groups</td>
+    <td>name, campaign, impressions, clicks, cost</td>
+    <td>Ad group breakdown within campaigns</td>
+  </tr>
+  <tr>
+    <td>keywords</td>
+    <td>text, match_type, impressions, clicks, cost, quality_score</td>
+    <td>Keyword performance for search campaigns</td>
+  </tr>
+</table>
+
+<h3>API Call Volume</h3>
+<p>
+  The pipeline is run once per day (or on-demand by a team member). Each run makes
+  approximately <strong>3–5 API calls</strong> to retrieve the above data for the current
+  reporting period. Total monthly API call volume is expected to remain under 200 calls.
+</p>
+
+<h3>Authentication</h3>
+<p>
+  Authentication uses OAuth 2.0 with a refresh token stored in a local environment file
+  on the operator's machine. Credentials are not stored in version control or shared
+  externally.
+</p>
+</div>
+
+<div class="section">
+<h2>3. Data Flow</h2>
+<ol>
+  <li>The Python script authenticates to the Google Ads API using OAuth 2.0.</li>
+  <li>Aggregate metrics are fetched for the configured date range (default: year-to-date).</li>
+  <li>Data is written directly to a private Google Sheet accessible only to Pivotree employees.</li>
+  <li>No data is stored in a database, transmitted to third parties, or published publicly.</li>
+</ol>
+</div>
+
+<div class="section">
+<h2>4. Technical Architecture</h2>
+<table>
+  <tr><th>Component</th><th>Description</th></tr>
+  <tr><td>Language</td><td>Python 3.9</td></tr>
+  <tr><td>Google Ads client library</td><td>google-ads (official Python client)</td></tr>
+  <tr><td>Execution environment</td><td>Local machine (MacOS), run manually or via cron</td></tr>
+  <tr><td>Output destination</td><td>Private Google Sheet (Google Sheets API)</td></tr>
+  <tr><td>Credential storage</td><td>Local .env file, not in version control</td></tr>
+  <tr><td>Users</td><td>1–2 internal Pivotree marketing operations staff</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>5. Access Scope &amp; Permissions</h2>
+<p>The application requests the following OAuth scope:</p>
+<ul>
+  <li><code>https://www.googleapis.com/auth/adwords</code> — read-only access to campaign data</li>
+</ul>
+<p>
+  No write operations, campaign modifications, or billing data access are required or requested.
+</p>
+</div>
+
+<div class="section">
+<h2>6. Data Privacy &amp; Security</h2>
+<ul>
+  <li>All data retrieved from the Google Ads API remains within Pivotree's internal systems.</li>
+  <li>The Google Sheet output is a private document shared only with named Pivotree employees.</li>
+  <li>OAuth credentials are stored locally and rotated periodically.</li>
+  <li>This tool is not a SaaS product, does not have a public-facing interface, and will never be offered to customers or third parties.</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>7. Company Information</h2>
+<table>
+  <tr><th>Field</th><th>Details</th></tr>
+  <tr><td>Company name</td><td>Pivotree Inc.</td></tr>
+  <tr><td>Website</td><td>pivotree.com</td></tr>
+  <tr><td>Industry</td><td>Commerce &amp; Supply Chain Technology</td></tr>
+  <tr><td>Google Ads account type</td><td>Advertiser (direct spend on paid search campaigns)</td></tr>
+  <tr><td>Primary contact</td><td>floyd.blaikie@pivotree.com</td></tr>
+</table>
+</div>
+
+</body>
+</html>
