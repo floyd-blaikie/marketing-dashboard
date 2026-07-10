@@ -160,14 +160,8 @@ with tab_funnel:
                 "Pipeline ($)":   "${:,.0f}",
                 "Bookings ($)":   "${:,.0f}",
                 "Pipeline ROAS":  "{:.1f}x",
-            }).background_gradient(
-                subset=["Pipeline ($)", "Bookings ($)"],
-                cmap="Greens"
-            ).background_gradient(
-                subset=["Spend ($)"],
-                cmap="Blues"
-            ),
-            use_container_width=True,
+            }),
+            width="stretch",
             hide_index=True,
         )
 
@@ -221,7 +215,7 @@ with tab_monthly:
                 "Ads Clicks":       "{:,.0f}",
                 "Website Sessions": "{:,.0f}",
             }),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
@@ -251,7 +245,7 @@ with tab_channels:
                     "Open Rate":   "{:.1%}",
                     "Reply Rate":  "{:.1%}",
                 }),
-                use_container_width=True, hide_index=True,
+                width="stretch", hide_index=True,
             )
         with col_right:
             st.subheader("Paid & Web")
@@ -264,7 +258,7 @@ with tab_channels:
                     "Sessions":     "{:,.0f}",
                     "CTR":          "{:.1%}",
                 }),
-                use_container_width=True, hide_index=True,
+                width="stretch", hide_index=True,
             )
 
         st.subheader("Impressions · Clicks · Engagements by Campaign")
