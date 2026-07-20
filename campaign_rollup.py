@@ -147,6 +147,22 @@ def build(reseed):
         return f"SUMIF({q('Tactic Ledger')}!$A$2:$A${LR},{c},{q('Tactic Ledger')}!${col}$2:${col}${LR})"
     dc = COLS["DEALS"]; da, ds, dcamp = dc["amount"], dc["stage"], dc["campaign"]
 
+    # ---- Manual Adjustments (never cleared — user edits this directly in Google Sheets) ----
+    MA = "Manual Adjustments"
+    if MA not in existing:
+        ma_ws = ss.add_worksheet(title=MA, rows=200, cols=6)
+        existing[MA] = ma_ws
+        ma_ws.update(
+            [["Campaign", "Month (YYYY-MM)", "Meetings", "Leads", "Notes"]],
+            value_input_option="USER_ENTERED"
+        )
+        print("Manual Adjustments tab created — add rows directly in Google Sheets.")
+    else:
+        print("Manual Adjustments tab exists — left untouched.")
+
+    def ma_sif(col, camp_ref):
+        return f"SUMIF({q(MA)}!$A:$A,{camp_ref},{q(MA)}!${col}:${col})"
+
     # ---- Campaign Registry ----
     reg = tab("Campaign Registry"); reg.clear()
     rgrid = [["#","Campaign Name","Status","Owner","Budget ($)","Actual Spend ($)","% Budget"]]
@@ -169,8 +185,8 @@ def build(reseed):
         kgrid.append([name,
           f"={SL('E',A)}", f"={SL('G',A)}", f"={SL('O',A)}",
           f"=IFERROR({SL('K',A)}/{SL('J',A)},0)", f"=IFERROR({SL('F',A)}/{SL('E',A)},0)",
-          f"=IFERROR({SL('G',A)}/{SL('E',A)},0)", f"={SL('H',A)}+{SL('M',A)}",
-          f"={SL('N',A)}", f"={opps}", f"={pipe}", f"={book}",
+          f"=IFERROR({SL('G',A)}/{SL('E',A)},0)", f"={SL('H',A)}+{SL('M',A)}+{ma_sif('D',A)}",
+          f"={SL('N',A)}+{ma_sif('C',A)}", f"={opps}", f"={pipe}", f"={book}",
           f"=IFERROR({SL('D',A)}/({SL('H',A)}+{SL('M',A)}),0)",
           f"=IFERROR({SL('N',A)}/({SL('H',A)}+{SL('M',A)}),0)"])
     tr = len(campaigns) + 2
@@ -195,8 +211,8 @@ def build(reseed):
         opps      = f"COUNTIFS({q(DEALS)}!${dcamp}:${dcamp},{A})"
         prgrid.append([
             name, status,
-            f"={SL('N',A)}",                              # C: Meetings
-            f"={SL('H',A)}+{SL('M',A)}",                  # D: Leads proxy
+            f"={SL('N',A)}+{ma_sif('C',A)}",               # C: Meetings (platform + manual)
+            f"={SL('H',A)}+{SL('M',A)}+{ma_sif('D',A)}", # D: Leads proxy (platform + manual)
             f"={opps}",                                    # E: Opps
             f"={opp_value}",                               # F: Opp Value
             f"={pipeline}",                                # G: Pipeline
@@ -377,8 +393,7 @@ def build(reseed):
     mkpi.update(mkgrid, value_input_option="USER_ENTERED")
     print("Monthly KPI Dashboard written.")
 
-    print("\nDone. Pipeline/Bookings stay 0 until deals carry a Campaign tag in "
-          f"'{DEALS}' column {dcamp}. See CAMPAIGN_ROLLUP_README.md.")
+    print("\nDone. Rollup tabs updated. Open the sheet to verify pipeline figures.")
 
 
 if __name__ == "__main__":

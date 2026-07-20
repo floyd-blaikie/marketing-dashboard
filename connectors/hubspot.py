@@ -295,7 +295,7 @@ class HubSpotConnector:
           A: Deal Name  B: Stage  C: Amount ($)  D: Owner  E: Close Date  F: Campaign
 
         The Campaign column maps to COLS["DEALS"]["campaign"] = "F" in campaign_rollup.py.
-        Values come from the 'marketing_campaign' HubSpot deal property, which the team
+        Values come from the 'primary_influencing_campaign' HubSpot deal property, which the team
         added to match names in campaigns.csv. Populates once the Salesforce integration
         is complete; until then it will be blank and pipeline/bookings formulas return 0.
 
@@ -311,7 +311,7 @@ class HubSpotConnector:
                 Filter(property_name="closedate", operator="GTE", value=self.start_date),
             ])],
             properties=["dealname", "dealstage", "amount", "hubspot_owner_id",
-                        "closedate", "marketing_campaign"],
+                        "closedate", "primary_influencing_campaign"],
             limit=100,
         )
 
@@ -340,7 +340,7 @@ class HubSpotConnector:
                     "Amount ($)": round(float(props.get("amount") or 0), 2),
                     "Owner": owners.get(owner_id, owner_id) if owner_id else "",
                     "Close Date": _format_ts(props.get("closedate")),
-                    "Campaign": props.get("marketing_campaign") or "",
+                    "Campaign": props.get("primary_influencing_campaign") or "",
                 })
 
             paging = getattr(resp, "paging", None)
